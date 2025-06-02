@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Naman151/Go-api/internal/config"
+	"github.com/Naman151/Go-api/internal/http/handlers/student"
 )
 
 func main()  {
@@ -16,9 +17,7 @@ func main()  {
 	router := http.NewServeMux()
 
 	slog.Info("Server Working")
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Welcome to Students Api"))
-	})
+	router.HandleFunc("GET /api/students", student.Create())
 
 	//setup server
 	server := http.Server{

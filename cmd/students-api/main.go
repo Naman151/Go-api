@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/Naman151/Go-api/internal/config"
@@ -15,8 +15,8 @@ func main()  {
 	//setup router
 	router := http.NewServeMux()
 
+	slog.Info("Server Working")
 	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("Server Working")
 		w.Write([]byte("Welcome to Students Api"))
 	})
 
@@ -27,7 +27,7 @@ func main()  {
 	}
 
 	err := server.ListenAndServe()
-
+	slog.Info("Server Working %s", slog.String("address", cfg.Addr))
 	if err != nil {
 		log.Fatalf("Failed to Start Server %s", err.Error())
 	}

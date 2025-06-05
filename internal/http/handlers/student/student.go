@@ -7,12 +7,13 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/Naman151/Go-api/internal/storage"
 	"github.com/Naman151/Go-api/internal/types"
 	"github.com/Naman151/Go-api/internal/utils/response"
 	"github.com/go-playground/validator/v10"
 )
 
-func Create() http.HandlerFunc {
+func Create(storage storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		slog.Info("Creating New Student")
 		var student types.Student

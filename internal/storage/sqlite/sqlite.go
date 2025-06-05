@@ -34,7 +34,13 @@ func New(cfg *config.Config) (*Sqlite, error) {
 }
 
 func (s *Sqlite) CreateStudent(name string, email string, age int) (int64, error) {
-	result, err := s.Db.Exec("INSERT INTO students (name, email, age) VALUES (?, ?, ?)", name, email, age)
+	stmt, err := s.Db.Prepare("INSERT INTO students (name, email, age) VALUES (?, ?, ?)")
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(name, email, age)
 	if err != nil {
 		return 0, err
 	}

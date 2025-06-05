@@ -3,6 +3,7 @@ package student
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -35,7 +36,16 @@ func Create(storage storage.Storage) http.HandlerFunc {
 			response.WriteJson(w, http.StatusBadRequest, response.ValidationError(validateErrs))
 		}
 
+		lastId, err := storage.CreateStudent(student.Name, student.Email, student.Age)
+
+		slog.Info("Student Created Sucessfully", slog.String("userId", fmt.Sprint(lastId)))
+
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, err)
+			return
+		}
+
 		w.Write([]byte("Welcome to Students Api"))
-		response.WriteJson(w, http.StatusCreated, map[string]string{"success": "OK"})
+		response.WriteJson(w, http.StatusCreated, map[string]int64{"Id": lastId})
 	}
 }

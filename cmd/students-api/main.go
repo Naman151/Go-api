@@ -30,8 +30,8 @@ func main() {
 	//setup router
 	router := http.NewServeMux()
 
-	slog.Info("Server Working")
-	router.HandleFunc("GET /api/students", student.Create(storage))
+	slog.Info("Server Working", slog.String("address", cfg.Addr))
+	router.HandleFunc("POST /api/students", student.Create(storage))
 
 	//setup server
 	server := http.Server{

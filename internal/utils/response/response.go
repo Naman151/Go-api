@@ -1,11 +1,9 @@
 package response
-
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
-
 	"github.com/go-playground/validator/v10"
 )
 

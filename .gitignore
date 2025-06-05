@@ -33,3 +33,5 @@ storage
 # Editor/IDE
 # .idea/
 # .vscode/
+
+/storage

@@ -34,7 +34,7 @@ func Create() http.HandlerFunc {
 			response.WriteJson(w, http.StatusBadRequest, response.ValidationError(validateErrs))
 		}
 
-		// w.Write([]byte("Welcome to Students Api"))
-		response.WriteJson(w, http.StatusCreated, )
+		w.Write([]byte("Welcome to Students Api"))
+		response.WriteJson(w, http.StatusCreated, map[string]string{"success": "OK"})
 	}
 }

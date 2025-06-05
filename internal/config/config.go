@@ -4,7 +4,6 @@ import (
 	"flag"
 	"log"
 	"os"
-
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -20,7 +19,6 @@ type Config struct {
 
 func MustLoad()  *Config {
 	var configPath string
-
 	configPath = os.Getenv("Config_Path")
 
 	if configPath == "" {
@@ -28,7 +26,6 @@ func MustLoad()  *Config {
 		flag.Parse()
 
 		configPath = *flags
-
 		if configPath == "" {
 			log.Fatal("Config Path is not Set")
 		}

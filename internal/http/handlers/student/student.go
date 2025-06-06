@@ -49,3 +49,11 @@ func Create(storage storage.Storage) http.HandlerFunc {
 		response.WriteJson(w, http.StatusCreated, map[string]int64{"Id": lastId})
 	}
 }
+
+func GetById(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		slog.Info("Student Id", slog.String("id", id))
+
+	}
+}

@@ -13,18 +13,24 @@ type Sqlite struct {
 	Db *sql.DB
 }
 
+var CreateTable = `CREATE TABLE IF NOT EXISTS students (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT,
+		email TEXT,
+		age INTEGER
+		)`
+
+var InsertStudent = `INSERT INTO students (name, email, age) VALUES (?, ?, ?)`
+var SelectStudentById = `SELECT id, name, email, age FROM students where id = ? LIMIT 1`
+var SelectStudents = `SELECT id, name, email, age FROM students`
+
 func New(cfg *config.Config) (*Sqlite, error) {
 	db, err := sql.Open("sqlite3", cfg.StoragePath)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS students (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		name TEXT,
-		email TEXT,
-		age INTEGER
-		)`)
+	_, err = db.Exec(CreateTable)
 
 	if err != nil {
 		return nil, err
@@ -36,7 +42,7 @@ func New(cfg *config.Config) (*Sqlite, error) {
 }
 
 func (s *Sqlite) CreateStudent(name string, email string, age int) (int64, error) {
-	stmt, err := s.Db.Prepare("INSERT INTO students (name, email, age) VALUES (?, ?, ?)")
+	stmt, err := s.Db.Prepare(InsertStudent)
 	if err != nil {
 		return 0, err
 	}
@@ -56,7 +62,7 @@ func (s *Sqlite) CreateStudent(name string, email string, age int) (int64, error
 }
 
 func (s *Sqlite) GetStudentById(id int64) (types.Student, error) {
-	stmt, err := s.Db.Prepare("SELECT id, name, email, age FROM students where id = ? LIMIT 1")
+	stmt, err := s.Db.Prepare(SelectStudentById)
 	if err != nil {
 		return types.Student{}, err
 	}
@@ -75,7 +81,7 @@ func (s *Sqlite) GetStudentById(id int64) (types.Student, error) {
 }
 
 func (s *Sqlite) GetStudentsList() ([]types.Student, error) {
-	stmt, err := s.Db.Prepare("SELECT id, name, email, age FROM students")
+	stmt, err := s.Db.Prepare(SelectStudents)
 	if err != nil {
 		return nil, err
 	}
@@ -101,4 +107,47 @@ func (s *Sqlite) GetStudentsList() ([]types.Student, error) {
 		students = append(students, student)
 	}
 	return students, nil
+}
+
+// func (s *Sqlite) UpdateStudentById() ([]types.Student, error) {
+// 	stmt, err := s.Db.Prepare("SELECT id, name, email, age FROM students")
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer stmt.Close()
+
+// 	var students []types.Student
+
+// 	rows, err := stmt.Query()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	defer rows.Close()
+
+// 	for rows.Next() {
+// 		var student types.Student
+
+// 		rows.Scan(&student.Id, &student.Name, &student.Email, &student.Age)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+
+// 		students = append(students, student)
+// 	}
+// 	return students, nil
+// }
+
+func (s *Sqlite) DeleteStudentById(id int64) error {
+	stmt, err := s.Db.Prepare("DELETE * FROM students where id = ? LIMIT 1")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

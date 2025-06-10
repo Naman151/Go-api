@@ -85,44 +85,44 @@ func GetList(storage storage.Storage) http.HandlerFunc {
 
 }
 
-func UpdateById(storage storage.Storage) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := r.PathValue("id")
-		slog.Info("Student Id", slog.String("id", id))
+// func UpdateById(storage storage.Storage) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		id := r.PathValue("id")
+// 		slog.Info("Student Id", slog.String("id", id))
 
-		intId, err := strconv.ParseInt(id, 10, 64)
-		if err != nil {
-			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
-		}
+// 		intId, err := strconv.ParseInt(id, 10, 64)
+// 		if err != nil {
+// 			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+// 		}
 
-		students, err := storage.UpdateStudentById(intId)
-		if err != nil {
-			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
-			return
-		}
+// 		students, err := storage.UpdateStudentById(intId)
+// 		if err != nil {
+// 			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+// 			return
+// 		}
 
-		response.WriteJson(w, http.StatusOK, students)
-	}
+// 		response.WriteJson(w, http.StatusOK, students)
+// 	}
 
-}
+// }
 
 func DeleteById(storage storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
-		slog.Info("Student Id", slog.String("id", id))
+		slog.Info("Student Id to delete", slog.String("id", id))
 
 		intId, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
 			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 		}
 
-		students, err := storage.DeleteStudentById(intId)
+		err = storage.DeleteStudentById(intId)
 		if err != nil {
 			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
 			return
 		}
 
-		response.WriteJson(w, http.StatusOK, students)
+		response.WriteJson(w, http.StatusOK, "Deletion Sucessful")
 	}
 
 }

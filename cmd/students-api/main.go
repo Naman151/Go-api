@@ -15,6 +15,25 @@ import (
 	"github.com/Naman151/Go-api/internal/storage/sqlite"
 )
 
+func gracefulShutdown(server *http.Server, done chan bool) {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	<-ctx.Done()
+
+	stop()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := server.Shutdown(ctx)
+	if err != nil {
+		slog.Error("failed to shutdown server", slog.String("error", err.Error()))
+	}
+
+	done <- true
+}
+
 func main() {
 	// Load Config
 	cfg := config.MustLoad()
@@ -30,11 +49,11 @@ func main() {
 	//setup router
 	router := http.NewServeMux()
 
-	slog.Info("Server Working", slog.String("address", cfg.Addr))
+	// slog.Info("Server Working", slog.String("address", cfg.Addr))
 	router.HandleFunc("POST /api/students", student.Create(storage))
 	router.HandleFunc("GET /api/students/{id}", student.GetById(storage))
 	router.HandleFunc("GET /api/students/", student.GetList(storage))
-	// router.HandleFunc("DELETE /api/students/{id}", student.DeleteById(storage))
+	router.HandleFunc("DELETE /api/students/{id}", student.DeleteById(storage))
 	// router.HandleFunc("PATCH /api/students/{id}", student.UpdateById(storage))
 
 	//setup server
@@ -43,29 +62,20 @@ func main() {
 		Handler: router,
 	}
 
-	done := make(chan os.Signal, 1)
+	done := make(chan bool, 1)
 
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	// signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	go func() {
-		err := server.ListenAndServe()
-		slog.Info("Server Working %s", slog.String("address", cfg.Addr))
-		if err != nil {
-			log.Fatalf("Failed to Start Server %s", err.Error())
-		}
-	}()
+	go gracefulShutdown(&server, done)
+
+	err = server.ListenAndServe()
+	slog.Info("Server Working %s", slog.String("address", cfg.Addr))
+	if err != nil {
+		log.Fatalf("Failed to Start Server %s", err.Error())
+	}
 
 	<-done
-
-	slog.Info("Shutting Down the Sever")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	err = server.Shutdown(ctx)
-	if err != nil {
-		slog.Error("failed to shutdown server", slog.String("error", err.Error()))
-	}
+	// slog.Info("Shutting Down the Sever")
 
 	slog.Info("server shutdown successfully")
 }
